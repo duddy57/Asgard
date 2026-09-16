@@ -11,7 +11,7 @@ scrape_configs:
   - job_name: node-exporter
     dns_sd_configs:
       - names:
-          - tasks.observability_node-exporter
+          - tasks.observabilidade_node-exporter
         type: A
         port: 9100
 
@@ -23,6 +23,6 @@ scrape_configs:
   - job_name: cadvisor
     dns_sd_configs:
       - names:
-          - tasks.observability_cadvisor
+          - tasks.observabilidade_cadvisor
         type: A
         port: 8080
