@@ -68,6 +68,7 @@ services:
 
   node-exporter:
     image: prom/node-exporter:latest
+    hostname: "{{.Node.Hostname}}"
     command:
       - "--path.rootfs=/host"
     volumes:
