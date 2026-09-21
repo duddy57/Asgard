@@ -1,0 +1,56 @@
+name: media
+
+x-environment: &environment
+  TZ: ${TZ:-America/Sao_Paulo}
+  PUID: ${PUID:-1000}
+  PGID: ${PGID:-1000}
+
+x-common: &common
+  restart: unless-stopped
+  networks:
+    - home
+    - public
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  finance:
+    <<: *common
+    image: felipegcoutinho/openmonetis:latest
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL:-postgresql://openmonetis:openmonetis_dev_password@db:5432/openmonetis_db}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
+      BETTER_AUTH_TRUSTED_ORIGINS: ${BETTER_AUTH_TRUSTED_ORIGINS:-}
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.swarm.network=network_public"
+        - "traefik.http.routers.finance.rule=Host(`${FIN_HOST}`)"
+        - "traefik.http.routers.finance.entrypoints=websecure"
+        - "traefik.http.routers.finance.tls=true"
+        - "traefik.http.routers.finance.tls.certresolver=letsencryptresolver"
+
+        - "traefik.http.services.finance.loadbalancer.server.port=3000"
+
+
+
+networks:
+  home:
+    external: true
+    name: network_home
+  public:
+    external: true
+    name: network_public

@@ -1,0 +1,131 @@
+name: media
+
+x-environment: &environment
+  TZ: ${TZ:-America/Sao_Paulo}
+  PUID: ${PUID:-1000}
+  PGID: ${PGID:-1000}
+
+x-common: &common
+  restart: unless-stopped
+  networks:
+    - media
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  qbittorrent:
+    <<: *common
+    image: lscr.io/linuxserver/qbittorrent:latest
+    environment:
+      <<: *environment
+      WEBUI_PORT: "8080"
+    volumes:
+      - ${CONFIG_ROOT}/qbittorrent/config:/config
+      - ${DATA_ROOT}/Downloads:/data/Downloads
+    ports:
+      - "${LAN_IP:?Defina LAN_IP no .env}:8080:8080"
+
+  jackett:
+    <<: *common
+    image: lscr.io/linuxserver/jackett:latest
+    environment: *environment
+    volumes:
+      - ${CONFIG_ROOT}/jackett/config:/config
+      - ${CONFIG_ROOT}/jackett/downloads:/downloads
+    ports:
+      - "${LAN_IP}:9117:9117"
+
+  bazarr:
+    <<: *common
+    image: lscr.io/linuxserver/bazarr:latest
+    environment: *environment
+    volumes:
+      - ${CONFIG_ROOT}/bazarr/config:/config
+      - ${DATA_ROOT}/Videos:/data/Videos
+    ports:
+      - "${LAN_IP}:6767:6767"
+
+  overseerr:
+    <<: *common
+    image: sctx/overseerr:latest
+    environment:
+      TZ: ${TZ}
+      PORT: "5055"
+    volumes:
+      - ${CONFIG_ROOT}/overseerr/config:/app/config
+    ports:
+      - "${LAN_IP}:5055:5055"
+
+  prowlarr:
+    <<: *common
+    image: ghcr.io/hotio/prowlarr:latest
+    environment: *environment
+    volumes:
+      - ${CONFIG_ROOT}/prowlarr/config:/config
+    ports:
+      - "${LAN_IP}:9696:9696"
+
+  flaresolverr:
+    <<: *common
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    environment:
+      TZ: ${TZ}
+      LOG_LEVEL: info
+
+  sabnzbd:
+    <<: *common
+    image: lscr.io/linuxserver/sabnzbd:latest
+    environment: *environment
+    volumes:
+      - ${CONFIG_ROOT}/sabnzbd/config:/config
+      - ${DATA_ROOT}/Downloads:/data/Downloads
+    ports:
+      - "${LAN_IP}:6789:8080"
+
+  radarr:
+    <<: *common
+    image: lscr.io/linuxserver/radarr:latest
+    environment: *environment
+    volumes:
+      - ${CONFIG_ROOT}/radarr/config:/config
+      - ${DATA_ROOT}:/data
+    ports:
+      - "${LAN_IP}:7878:7878"
+
+  sonarr:
+    <<: *common
+    image: lscr.io/linuxserver/sonarr:latest
+    environment: *environment
+    volumes:
+      - ${CONFIG_ROOT}/sonarr/config:/config
+      - ${DATA_ROOT}:/data
+    ports:
+      - "${LAN_IP}:8989:8989"
+
+  plex:
+    <<: *common
+    image: plexinc/pms-docker:latest
+    environment:
+      TZ: ${TZ}
+      PLEX_UID: ${PUID:-1000}
+      PLEX_GID: ${PGID:-1000}
+      ADVERTISE_IP: "http://${LAN_IP}:32400/"
+      # Para vincular uma instalação nova, descomente:
+      # PLEX_CLAIM: ${PLEX_CLAIM}
+    volumes:
+      - ${CONFIG_ROOT}/plex/config:/config
+      - ${CONFIG_ROOT}/plex/transcode:/transcode
+      - ${DATA_ROOT}/Videos:/data/Videos:ro
+    ports:
+      - "32400:32400/tcp"
+
+    # Se o midgard tiver GPU Intel/AMD disponível em /dev/dri:
+    # devices:
+    #   - /dev/dri:/dev/dri
+
+networks:
+  media:
+    driver: bridge
