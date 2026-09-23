@@ -2,3 +2,4 @@
 tmp/
 ansible/
 inventory.json
+media.compose.yml
