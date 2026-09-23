@@ -38,7 +38,7 @@ services:
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.swarm.network=network_public"
+        - "traefik.swarm.network=network_public_attachable"
         - "traefik.http.routers.finance.rule=Host(`${FIN_HOST}`)"
         - "traefik.http.routers.finance.entrypoints=websecure"
         - "traefik.http.routers.finance.tls=true"
