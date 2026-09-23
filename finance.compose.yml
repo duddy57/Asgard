@@ -57,4 +57,4 @@ networks:
     name: network_database
   public:
     external: true
-    name: network_public
+    name: network_public_attachable
