@@ -9,8 +9,7 @@ x-environment: &environment
 x-common: &common
   restart: unless-stopped
   networks:
-    - home
-    - public
+    - backups
     - database
   logging:
     driver: json-file
@@ -39,20 +38,9 @@ services:
       - /var/lib/zerobyte:/var/lib/zerobyte
 
 networks:
-  home:
+  backups:
     external: true
-    name: network_home
+    name: network_backups
   database:
     external: true
     name: network_database
-  public:
-    external: true
-    name: network_public_attachable
-
-volumes:
-  observability_prometheus_data:
-    external: true
-    name: observability_prometheus_data
-  observability_grafana_data:
-    external: true
-    name: observability_grafana_data
