@@ -1,5 +1,4 @@
-
-name: media
+name: backups
 
 x-environment: &environment
   TZ: ${TZ:-America/Sao_Paulo}
@@ -26,12 +25,14 @@ services:
     cap_add:
       - SYS_ADMIN
     ports:
-      - "${TAILSCALE_IP:?Defina TAILSCALE_IP no .env}:4096:4096"
+      - "${TAILSCALE_IP}:4096:4096"
+    security_opt:
+      - apparmor:unconfined
     devices:
       - /dev/fuse:/dev/fuse
     environment:
       <<: *environment
-      BASE_URL: http://${TAILSCALE_IP:?Defina TAILSCALE_IP no .env}:4096
+      BASE_URL: http://${TAILSCALE_IP}:4096
       APP_SECRET: ${APP_SECRET}
     volumes:
       - /etc/localtime:/etc/localtime:ro
