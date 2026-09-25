@@ -41,7 +41,7 @@ services:
 networks:
   backups:
     external: true
-    name: network_backups
+    name: network_backup
   database:
     external: true
     name: network_database
