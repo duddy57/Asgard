@@ -26,6 +26,8 @@ services:
       - SYS_ADMIN
     ports:
       - "${TAILSCALE_IP}:4096:4096"
+    security_opt:
+      - apparmor:unconfined
     devices:
       - /dev/fuse:/dev/fuse
     environment:
@@ -39,7 +41,7 @@ services:
 networks:
   backups:
     external: true
-    name: network_backup
+    name: network_backups
   database:
     external: true
     name: network_database

@@ -13,4 +13,3 @@ Como o repositorio se chama Yggdrasil da mitologia nordica, as maquinas não pod
 
 ## Controle
 Todas as maquinas estão conectadas a uma rede privada, que utilizo para controle e gerenciamento pela maquina Asgard, utilizo o Komodo nela e nas demais uso o periphery
-
