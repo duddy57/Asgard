@@ -1,0 +1,58 @@
+
+name: media
+
+x-environment: &environment
+  TZ: ${TZ:-America/Sao_Paulo}
+  PUID: ${PUID:-1000}
+  PGID: ${PGID:-1000}
+
+x-common: &common
+  restart: unless-stopped
+  networks:
+    - home
+    - public
+    - database
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  zerobyte:
+    <<: *common
+    image: ghcr.io/nicotsx/zerobyte:v0.42
+    container_name: zerobyte
+    restart: unless-stopped
+    cap_add:
+      - SYS_ADMIN
+    ports:
+      - "${TAILSCALE_IP:?Defina TAILSCALE_IP no .env}:4096:4096"
+    devices:
+      - /dev/fuse:/dev/fuse
+    environment:
+      <<: *environment
+      BASE_URL: http://${TAILSCALE_IP:?Defina TAILSCALE_IP no .env}:4096
+      APP_SECRET: ${APP_SECRET}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/lib/zerobyte:/var/lib/zerobyte
+
+networks:
+  home:
+    external: true
+    name: network_home
+  database:
+    external: true
+    name: network_database
+  public:
+    external: true
+    name: network_public_attachable
+
+volumes:
+  observability_prometheus_data:
+    external: true
+    name: observability_prometheus_data
+  observability_grafana_data:
+    external: true
+    name: observability_grafana_data
